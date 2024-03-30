@@ -1,4 +1,4 @@
-package com.example.todoapp.security;
+package com.example.todoapp.security.services;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
