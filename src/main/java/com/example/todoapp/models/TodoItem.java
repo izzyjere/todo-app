@@ -3,8 +3,13 @@ package com.example.todoapp.models;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.sql.Timestamp;
+import java.util.Date;
+
 @Table(name = "TodoItems")
 @Entity
 @Getter
@@ -23,6 +28,14 @@ public class TodoItem {
     @ManyToOne
     @JoinColumn(name = "owner_id")
     private TodoUser owner;
+    @Setter
+    @CreationTimestamp
+    @Column(updatable = false, name = "created_at")
+    private Date createdAt;
+    @Setter
+    @UpdateTimestamp
+    @Column(name = "updated_at")
+    private Date updatedAt;
     public TodoItem(String details, String description,TodoUser owner) {
         this.details = details;
         this.description = description;
@@ -34,4 +47,5 @@ public class TodoItem {
         this.status = TodoStatus.COMPLETED;
         this.completedDate = new Timestamp(System.currentTimeMillis());
     }
+
 }
