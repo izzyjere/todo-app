@@ -1,5 +1,6 @@
-package com.example.todoapp.security.services;
+package com.example.todoapp.security.filters;
 
+import com.example.todoapp.security.services.TokenService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

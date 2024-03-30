@@ -18,8 +18,10 @@ public class TodoItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+    @Setter
     private String details;
     @Column(nullable = true)
+    @Setter
     private String description;
     private Timestamp createdDate;
     @Column(nullable = true)

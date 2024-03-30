@@ -1,3 +1,5 @@
+module-name: TodoApp
+api-version: v1
 spring:
   datasource:
     url: jdbc:sqlite:TodoApp.db

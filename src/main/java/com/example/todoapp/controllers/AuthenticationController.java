@@ -6,12 +6,8 @@ import com.example.todoapp.dto.Result;
 import com.example.todoapp.dto.TokenResponse;
 import com.example.todoapp.security.services.AuthenticationService;
 import com.example.todoapp.security.services.TokenService;
-import com.example.todoapp.services.TodoUserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.aspectj.weaver.patterns.IToken;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -19,7 +15,7 @@ import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("api/authentication")
+@RequestMapping("/api/auth")
 @Log4j2
 public class AuthenticationController {
 

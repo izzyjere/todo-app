@@ -1,10 +1,11 @@
-package com.example.todoapp.security.services;
+package com.example.todoapp.security.services.impl;
 
 import com.example.todoapp.dto.CreateUserRequest;
 import com.example.todoapp.dto.LoginRequest;
 import com.example.todoapp.exceptions.RecordNotFoundException;
 import com.example.todoapp.models.TodoUser;
 import com.example.todoapp.repositories.TodoUserRepository;
+import com.example.todoapp.security.services.AuthenticationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
