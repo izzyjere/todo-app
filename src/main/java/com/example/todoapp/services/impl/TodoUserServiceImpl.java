@@ -31,7 +31,7 @@ public class TodoUserServiceImpl implements TodoUserService {
        var user = repository.findById(id);
        if(user.isEmpty()){
            log.error("Record was not found.");
-           throw new RecordNotFoundException("Record was not found.");
+           throw new RecordNotFoundException("User record was not found.");
        }
        repository.delete(user.get());
     }

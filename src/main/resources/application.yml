@@ -1,11 +1,16 @@
 spring:
   datasource:
-    url: jdbc:sqlserver://localhost;databaseName=TodoApp;username=sa;password=test1234@
-    driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
+    url: jdbc:sqlite:TodoApp.db
+    driverClassName: org.sqlite.JDBC
+    username: sa
+    password: sa
   jpa:
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.SQLServer2012Dialect
+        dialect: org.hibernate.community.dialect.SQLiteDialect
+        show_sql: true
+    hibernate:
+      ddl-auto: update
   application:
     name: todo-app
 logging:
