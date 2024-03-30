@@ -70,4 +70,5 @@ public class TodoUser implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
 }

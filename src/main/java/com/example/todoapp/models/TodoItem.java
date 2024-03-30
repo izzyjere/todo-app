@@ -1,9 +1,7 @@
 package com.example.todoapp.models;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -17,6 +15,7 @@ import java.util.Date;
 public class TodoItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Setter
     private int id;
     @Setter
     private String details;
