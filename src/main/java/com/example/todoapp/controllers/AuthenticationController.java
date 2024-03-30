@@ -38,7 +38,8 @@ public class AuthenticationController {
             var authenticatedUser = authenticationService.authenticate(request);
             Map<String,Object> customClaims = new HashMap<>();
             customClaims.put("GivenName",authenticatedUser.getFirstName());
-            customClaims.put("SurName",authenticatedUser.getLastLame());
+            customClaims.put("Surname",authenticatedUser.getLastLame());
+            customClaims.put("Id",authenticatedUser.getId());
             String jwtToken = tokenService.generateToken(customClaims,authenticatedUser);
             return Result.Success(TokenResponse.builder().token(jwtToken).expiresIn(tokenService.getExpirationTime()).build(), "Login successful.");
         } catch (Exception e) {
