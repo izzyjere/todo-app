@@ -13,8 +13,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Locale;
 
 @RequiredArgsConstructor
 @Service
@@ -22,18 +24,24 @@ import java.util.List;
 public class TodoItemServiceImpl implements TodoItemService {
     private final TodoItemRepository todoItemRepository;
     private final TodoUserRepository userRepository;
+
     private Todo map(TodoItem todoItem) {
-        var formatter = DateTimeFormatter.ofPattern("dd, MMM yyyy H:mm");
-        return Todo.builder()
+        var formatter = DateTimeFormatter.ofPattern("dd, MMM yyyy H:mm")
+                .withLocale(Locale.getDefault())
+                .withZone(ZoneId.systemDefault());
+        var dto = Todo.builder()
                 .status(todoItem.getStatus())
                 .description(todoItem.getDescription())
                 .details(todoItem.getDetails())
                 .id(todoItem.getId())
                 .createdDate(formatter.format(todoItem.getCreatedAt().toInstant()))
-                .completedDate(formatter.format(todoItem.getCompletedDate().toInstant()))
                 .owner(todoItem.getOwner().toString())
                 .complete(todoItem.getStatus().equals(TodoStatus.COMPLETED))
                 .build();
+        if(todoItem.getCompletedDate() != null){
+           dto.setCompletedDate(formatter.format(todoItem.getCompletedDate().toInstant()));
+        }
+        return dto;
     }
 
     @Override
@@ -53,25 +61,32 @@ public class TodoItemServiceImpl implements TodoItemService {
     public List<Todo> getAll(int userId) {
         return todoItemRepository.findAllByOwner_Id(userId).stream().map(this::map).toList();
     }
+
     @Override
     public Todo save(TodoRequest request) {
-        TodoItem todoItem;
-        if(request.getId() == 0){
-            var currentUser = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            var owner = userRepository.findByUsername(currentUser.getUsername());
-            if (owner.isEmpty()) {
-                log.error("Invalid authentication state. Todo can't be created.");
-                return null;
+        try {
+            TodoItem todoItem;
+            if (request.getId() == 0) {
+                var currentUser = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+                var owner = userRepository.findByUsername(currentUser.getUsername());
+                if (owner.isEmpty()) {
+                    log.error("Invalid authentication state. Todo can't be created.");
+                    return null;
+                }
+
+                todoItem = new TodoItem(request.getDetails(), request.getDescription(), owner.get());
+            } else {
+                //Editing
+                todoItem = todoItemRepository.findById(request.getId()).orElseThrow(() -> new RecordNotFoundException("Todo item with id {" + request.getId() + "} was not found."));
+                todoItem.setDescription(request.getDescription());
+                todoItem.setDetails(request.getDetails());
             }
 
-            todoItem = new TodoItem(request.getDetails(), request.getDescription(), owner.get());
-        }else {
-            //Editing
-            todoItem = todoItemRepository.findById(request.getId()).orElseThrow(() -> new RecordNotFoundException("Todo item with id {" + request.getId() + "} was not found."));
-            todoItem.setDescription(request.getDescription());
-            todoItem.setDetails(request.getDetails());
+            return map(todoItemRepository.save(todoItem));
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error(e);
+            return null;
         }
-
-        return map(todoItemRepository.save(todoItem));
     }
 }

@@ -35,6 +35,9 @@ public class TodoItemController {
     @PostMapping
     public ResponseEntity<Todo> saveTodo(@RequestBody TodoRequest request) {
         Todo savedTodo = todoItemService.save(request);
+        if(savedTodo==null){
+            return ResponseEntity.internalServerError().build();
+        }
         return new ResponseEntity<>(savedTodo, HttpStatus.CREATED);
     }
 }

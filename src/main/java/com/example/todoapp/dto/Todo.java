@@ -6,6 +6,7 @@ import com.example.todoapp.models.TodoStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @AllArgsConstructor
@@ -17,6 +18,7 @@ public class Todo {
     private TodoStatus status;
     private String owner;
     private String createdDate;
+    @Setter
     private String completedDate;
     private boolean complete;
 }
