@@ -1,5 +1,7 @@
 package com.example.todoapp.dto;
 
+import java.util.Date;
+
 import com.example.todoapp.models.TodoStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,4 +16,6 @@ public class Todo {
     private String description;
     private TodoStatus status;
     private String owner;
+    private Date createdDate;
+    private Date completedDate;
 }
