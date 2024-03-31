@@ -16,6 +16,7 @@ public class Todo {
     private String description;
     private TodoStatus status;
     private String owner;
-    private Date createdDate;
-    private Date completedDate;
+    private String createdDate;
+    private String completedDate;
+    private boolean complete;
 }

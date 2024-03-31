@@ -1,9 +1,9 @@
 ﻿import axios from 'axios';
 
 const state = {
-  token: null,
-  isAuthenticated: false,
-  user: null,
+  token: localStorage.getItem('token') || null,
+  isAuthenticated: localStorage.getItem('token') ? true : false,
+  user: localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null,
   errorMessage: null
 };
 
@@ -26,7 +26,7 @@ const actions = {
       commit('SET_ERROR_MESSAGE', null);
       const response = await axios.post('auth/login', credentials);
       if (response.data.succeeded) {
-        const { token, expiresIn } = response.data.data.tokenData;
+        const { token } = response.data.data.tokenData;
         const user = response.data.data.userData;
         commit('SET_TOKEN', token);
         commit('SET_USER', user);
@@ -39,7 +39,8 @@ const actions = {
           commit('SET_ERROR_MESSAGE', null);
           localStorage.removeItem('token');
           localStorage.removeItem('user');
-        }, expiresIn * 1000);
+          window.location.reload();
+        }, 3600000);
       } else {
         commit('SET_ERROR_MESSAGE', response.message);
         throw new Error("Invalid credentials.");

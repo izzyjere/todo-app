@@ -35,7 +35,6 @@
     </el-card>
   </div>
 </template>
-
 <script>
 import { mapActions } from "vuex";
 export default {
@@ -78,12 +77,17 @@ export default {
               username: this.loginForm.username,
               password: this.loginForm.password,
             })
-              .then(() => this.$router.push("/todos"))
+              .then(() => {
+                // Redirect to home page after successful login
+                this.$router.push("/todos");
+              })
               .catch((error) => {
                 this.errorMessage = error.message ?? "Invalid login attempt.";
                 console.log(error);
+              })
+              .finally(() => {
+                this.loading = false; // Set loading state to false
               });
-            this.loading = false;
           } else {
             console.log("Invalid Form");
           }
@@ -95,8 +99,20 @@ export default {
       }
     },
   },
+  created() {
+    // Check if there is a valid authentication token in local storage
+    const token = localStorage.getItem("token");
+    if (token) {
+      // Retrieve user data associated with the token
+      const user = JSON.parse(localStorage.getItem("user"));
+      // Set authentication state in Vuex store
+      this.$store.commit("auth/SET_TOKEN", token);
+      this.$store.commit("auth/SET_USER", user);
+    }
+  },
 };
 </script>
+
 
 <style scoped>
 .login-container {

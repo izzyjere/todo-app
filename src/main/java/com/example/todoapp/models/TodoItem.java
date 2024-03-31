@@ -21,8 +21,7 @@ public class TodoItem {
     private String details;
     @Column(nullable = true)
     @Setter
-    private String description;
-    private Timestamp createdDate;
+    private String description;   
     @Column(nullable = true)
     private Timestamp completedDate;
     private TodoStatus status;
@@ -39,8 +38,7 @@ public class TodoItem {
     private Date updatedAt;
     public TodoItem(String details, String description,TodoUser owner) {
         this.details = details;
-        this.description = description;
-        this.createdDate = new Timestamp(System.currentTimeMillis());
+        this.description = description;        
         this.status = TodoStatus.PENDING;
         this.owner = owner;
     }

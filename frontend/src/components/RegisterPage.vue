@@ -8,7 +8,7 @@
         ref="registrationForm"
         :model="registrationForm"
         :rules="registrationRules"
-        label-width="100px"
+        label-width="150px"
         labelPosition="left"
       >
         <el-form-item label="First Name" prop="firstName">

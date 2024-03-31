@@ -12,14 +12,14 @@
                   </el-avatar>
                   <template #dropdown>
                     <el-dropdown-menu>
-                      <el-dropdown-item>
+                      <el-dropdown-item @click="signOut">
                         <el-icon><SwitchButton /></el-icon>
                         Logout
                       </el-dropdown-item>
                     </el-dropdown-menu>
                   </template>
                 </el-dropdown>
-                <h3>Wisdom Jere</h3>
+                <h3>{{ user?.fullName ?? "Unknown" }}</h3>
               </el-col>
             </el-row>
           </div>
@@ -31,7 +31,7 @@
             <el-row :gutter="16">
               <el-col :span="8">
                 <div class="statistic-card">
-                  <el-statistic :value="3">
+                  <el-statistic :value="statistics.total">
                     <template #title>
                       <div style="display: inline-flex; align-items: center">
                         Total
@@ -42,7 +42,7 @@
               </el-col>
               <el-col :span="8">
                 <div class="statistic-card">
-                  <el-statistic :value="1">
+                  <el-statistic :value="statistics.completed">
                     <template #title>
                       <div style="display: inline-flex; align-items: center">
                         Done
@@ -56,10 +56,13 @@
               </el-col>
               <el-col :span="8">
                 <div class="statistic-card">
-                  <el-statistic :value="2" title="New transactions today">
+                  <el-statistic
+                    :value="statistics.pending"
+                    title="New transactions today"
+                  >
                     <template #title>
                       <div style="display: inline-flex; align-items: center">
-                        Todo                        
+                        Todo
                         <el-icon style="margin-left: 4px" :size="12">
                           <Timer />
                         </el-icon>
@@ -85,7 +88,7 @@
           </el-container>
           <el-scrollbar>
             <!-- Timeline of todos -->
-            <el-timeline style="max-width: 400px; margin-top: 10px">
+            <el-timeline style="max-width: 500px; margin-top: 10px">
               <el-timeline-item
                 v-for="todo in todos"
                 :key="todo.id"
@@ -94,7 +97,7 @@
               >
                 <el-card
                   class="timeline-card"
-                  style="max-height: 200px"
+                  style="min-height: 200px; min-width: 250px"
                   :class="{ completed: todo.completedDate }"
                 >
                   <el-badge
@@ -119,17 +122,20 @@
                     <el-icon
                       color="brown"
                       title="Edit todo"
+                      @click="() => editTodo(todo)"
                       style="font-size: x-large; margin-right: 20px"
                       ><Edit
                     /></el-icon>
                     <el-icon
                       color="green"
+                      @click="() => markTodoAsComplete(todo)"
                       v-if="!todo.completedDate"
                       title="Mark as done"
                       style="font-size: x-large; margin-right: 20px"
                       ><Finished
                     /></el-icon>
                     <el-icon
+                      @click="() => removeTodo(todo)"
                       color="red"
                       title="delete todo"
                       style="font-size: x-large"
@@ -144,6 +150,28 @@
       </div>
     </el-main>
   </el-container>
+  <el-dialog
+    v-model="dialogFormVisible"
+    :title="todoRequest.id === 0 ? 'Create Todo' : 'Edit Todo'"
+    width="500"
+  >
+    <el-form ref="todoForm" :rules="todoRules" :model="todoRequest">
+      <el-form-item label="Todo Details" prop="details" :label-width="100">
+        <el-input v-model="todoRequest.details" autocomplete="on" />
+      </el-form-item>
+      <el-form-item label="Description" prop="description" :label-width="100">
+        <el-input v-model="todoRequest.description" autocomplete="on" />
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <div class="dialog-footer">
+        <el-button @click="hideForm">Cancel</el-button>
+        <el-button @click="submitTodo" :loading="loading" type="primary">
+          Submit
+        </el-button>
+      </div>
+    </template>
+  </el-dialog>
 </template>
 <style scoped>
 .container {
@@ -184,68 +212,185 @@
 </style>
 
 <script>
+import { mapActions, mapGetters } from "vuex";
+import { ElNotification } from "element-plus";
+
 export default {
   data() {
     return {
-      todos: [
-        {
-          id: 1,
-          details: "Task 1",
-          description: "Description 1",
-          status: "Todo",
-          owner: "User 1",
-          createdDate: "2024-04-01",
-          completedDate: null,
-          complete: false,
-        },
-        {
-          id: 2,
-          details: "Task 2",
-          description: "Description 2",
-          status: "Completed",
-          owner: "User 2",
-          createdDate: "2024-04-02",
-          completedDate: "2024-04-03",
-          complete: true,
-        },
-        {
-          id: 3,
-          details: "Task 3",
-          description: "Description 3",
-          status: "Todo",
-          owner: "User 3",
-          createdDate: "2024-04-03",
-          completedDate: null,
-          complete: false,
-        },
-      ],
+      dialogFormVisible: false,
+      loading: false,
+      todoRequest: {
+        id: 0,
+        details: "",
+        description: "",
+      },
+      todoRules: {
+        details: [
+          {
+            required: true,
+            message: "Please enter valid task details",
+            trigger: "blur",
+          },
+        ],
+        description: [
+          {
+            required: true,
+            message: "Please provide a description",
+            trigger: "blur",
+          },
+        ],
+      },
     };
   },
   computed: {
-    completedTodos() {
-      return this.todos.filter((todo) => todo.completedDate !== null);
-    },
-    incompleteTodos() {
-      return this.todos.filter((todo) => todo.completedDate === null);
+    ...mapGetters("auth", ["user"]),
+    ...mapGetters("todo", ["todos"]),
+    statistics() {
+      return {
+        total: this.todos.length,
+        completed: this.getComplete(),
+        pending: this.getPending()
+      };
     },
   },
   methods: {
+    ...mapActions("todo", [
+      "fetchTodos",
+      "saveTodo",
+      "deleteTodo",
+      "completeTodo",
+    ]), 
+    ...mapActions("auth", ["logout"]), 
+    hideForm() {
+      this.dialogFormVisible = false;
+    },
+    getPending(){
+      if(this.todos.length){
+        return this.todos.filter((t) => !t.complete).length;
+      }else{
+        return 0;
+      }
+    },
+    getComplete(){
+      if(this.todos.length){
+        return this.todos.filter((t) => t.complete).length;
+      }else{
+        return 0;
+      }
+    },
+    refreshModel() {
+      this.todoRequest = {
+        id: 0,
+        details: "",
+        description: "",
+      };
+    },
+    signOut(){
+      this.logout();
+      this.$router.push("/");
+    },
     createTodo() {
-      // Logic for creating a new todo
+      this.dialogFormVisible = true;
       console.log("Creating todo...");
     },
     editTodo(todo) {
-      // Logic for editing a todo
+      this.todoRequest = {
+        id: todo.id,
+        details: todo.details,
+        description: todo.description,
+      };
+      this.dialogFormVisible = true;
       console.log("Editing todo:", todo);
     },
-    completeTodo(todo) {
-      // Logic for completing a todo
+    markTodoAsComplete(todo) {
+      this.completeTodo(todo.id)
+        .then((result) => {
+          if (!result) {
+            ElNotification({
+              title: "Error",
+              message: `Failed to complete todo try again later.`,
+              type: "error",
+            });
+            return;
+          }
+          ElNotification({
+            title: "Completed",
+            message: `Todo ${result.details} successfully marked as.`,
+            type: "success",
+          });
+          this.refreshModel();
+        })
+        .catch((error) => {
+          console.error(error);
+          ElNotification({
+            title: "Error",
+            message: `Failed to complete todo try again later.`,
+            type: "error",
+          });
+        });
       console.log("Completing todo:", todo);
     },
-    deleteTodo(todo) {
-      // Logic for deleting a todo
+    removeTodo(todo) {
+      this.deleteTodo(todo.id)
+        .then((result) => {
+          console.log(result);
+          ElNotification({
+            title: "Delete",
+            message: `Todo ${todo.details} successfully removed.`,
+            type: "success",
+          });
+          this.refreshModel();
+        })
+        .catch((error) => {
+          console.error(error);
+          ElNotification({
+            title: "Error",
+            message: `Failed to delete todo try again later.`,
+            type: "error",
+          });
+        });
       console.log("Deleting todo:", todo);
     },
+    submitTodo() {
+      this.$refs.todoForm.validate((valid) => {
+        if (valid) {
+          this.loading = true;
+          this.saveTodo(this.todoRequest)
+            .then((result) => {
+              if (result) {
+                ElNotification({
+                  title: "Save",
+                  message: `Todo ${result.details} successfully saved.`,
+                  type: "success",
+                });
+                this.dialogFormVisible = false;
+                this.refreshModel();
+              } else {
+                ElNotification({
+                  title: "Error",
+                  message: `Failed to save todo try again later.`,
+                  type: "error",
+                });
+              }
+            })
+            .catch((error) => {
+              console.error(error);
+              ElNotification({
+                title: "Error",
+                message: `Failed to save todo try again later.`,
+                type: "error",
+              });
+            })
+            .finally(() => {
+              this.loading = false;
+            });
+        }
+      });
+    },
+  },
+  created() {
+    this.fetchTodos();
   },
 };
 </script>

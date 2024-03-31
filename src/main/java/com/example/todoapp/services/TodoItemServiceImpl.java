@@ -4,6 +4,7 @@ import com.example.todoapp.dto.Todo;
 import com.example.todoapp.dto.TodoRequest;
 import com.example.todoapp.exceptions.RecordNotFoundException;
 import com.example.todoapp.models.TodoItem;
+import com.example.todoapp.models.TodoStatus;
 import com.example.todoapp.repositories.TodoItemRepository;
 import com.example.todoapp.repositories.TodoUserRepository;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -21,12 +23,16 @@ public class TodoItemServiceImpl implements TodoItemService {
     private final TodoItemRepository todoItemRepository;
     private final TodoUserRepository userRepository;
     private Todo map(TodoItem todoItem) {
+        var formatter = DateTimeFormatter.ofPattern("dd, MMM yyyy H:mm");
         return Todo.builder()
                 .status(todoItem.getStatus())
                 .description(todoItem.getDescription())
                 .details(todoItem.getDetails())
                 .id(todoItem.getId())
+                .createdDate(formatter.format(todoItem.getCreatedAt().toInstant()))
+                .completedDate(formatter.format(todoItem.getCompletedDate().toInstant()))
                 .owner(todoItem.getOwner().toString())
+                .complete(todoItem.getStatus().equals(TodoStatus.COMPLETED))
                 .build();
     }
 
