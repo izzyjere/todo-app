@@ -5,6 +5,7 @@ import ElementPlus from 'element-plus';
 import 'element-plus/dist/index.css';
 import LoginPage from './components/LoginPage.vue';
 import RegisterPage from './components/RegisterPage.vue';
+import axios from 'axios';
 
 
 const routes = [
@@ -17,7 +18,7 @@ const router = createRouter({
   history: createWebHistory(),
   routes
 });
-
+axios.defaults.baseURL = 'http://localhost:8080/api/';
 const app = createApp(App);
 app.use(router);
 app.use(ElementPlus);

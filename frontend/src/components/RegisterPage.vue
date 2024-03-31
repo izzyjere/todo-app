@@ -1,54 +1,36 @@
 ﻿<template>
   <div class="register-container">
     <el-card class="register-card">
-      <template v-slot:header>
+      <template #header>
         <h2>Register</h2>
       </template>
       <el-form
         ref="registrationForm"
         :model="registrationForm"
         :rules="registrationRules"
-        label-width="100px">
-        <el-form-item
-          label="First Name"
-          prop="firstName"
-          class="form-item-label-top"
-        >
+        label-width="100px"
+        labelPosition="left"
+      >
+        <el-form-item label="First Name" prop="firstName">
           <el-input
             v-model="registrationForm.firstName"
             size="large"
           ></el-input>
         </el-form-item>
-        <el-form-item
-          label="Last Name"
-          prop="lastName"
-          class="form-item-label-top"
-        >
+        <el-form-item label="Last Name" prop="lastName">
           <el-input v-model="registrationForm.lastName" size="large"></el-input>
         </el-form-item>
-        <el-form-item
-          label="Username"
-          prop="username"
-          class="form-item-label-top"
-        >
+        <el-form-item label="Username" prop="username">
           <el-input v-model="registrationForm.username" size="large"></el-input>
         </el-form-item>
-        <el-form-item
-          label="Password"
-          prop="password"
-          class="form-item-label-top"
-        >
+        <el-form-item label="Password" prop="password">
           <el-input
             type="password"
             v-model="registrationForm.password"
             size="large"
           ></el-input>
         </el-form-item>
-        <el-form-item
-          label="Confirm Password"
-          prop="confirmPassword"
-          class="form-item-label-top"
-        >
+        <el-form-item label="Confirm" prop="confirmPassword">
           <el-input
             type="password"
             v-model="registrationForm.confirmPassword"
@@ -61,17 +43,24 @@
           >
         </el-form-item>
       </el-form>
-      <div class="login-link">
-        <router-link to="/login">Already have an account? Login</router-link>
-      </div>
+      <template #footer>
+        <div class="login-link">
+          <router-link to="/login">Already have an account? Login</router-link>
+        </div>
+        <el-alert v-if="errorMessage" type="error" :closable="false" show-icon>
+          {{ errorMessage }}
+        </el-alert>
+      </template>
     </el-card>
   </div>
 </template>
 
 <script>
+import axios from "axios";
 export default {
   data() {
     return {
+      errorMessage: "",
       registrationForm: {
         firstName: "",
         lastName: "",
@@ -124,7 +113,27 @@ export default {
       this.$refs.registrationForm.validate((valid) => {
         if (valid) {
           // Send registration data to backend
-          console.log("Registration Successful");
+          axios
+            .post("auth/signup", this.registrationForm)
+            .then((response) => {
+              if (response.data.succeeded) {
+                console.log(
+                  "User registered successfully:",
+                  response.data.message
+                );
+                this.$router.push("/login");
+              } else {
+                this.errorMessage = response.data.message;
+                console.error(
+                  "Failed to register user:",
+                  response.data.message
+                );
+              }
+            })
+            .catch((error) => {
+              console.error("An error occurred during registration:", error);
+              this.errorMessage = "An error occurred. Please try again later.";
+            });
         } else {
           console.log("Invalid Form");
           return false;
@@ -145,6 +154,12 @@ export default {
 </script>
 
 <style scoped>
+.login-link {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
 .register-container {
   display: flex;
   justify-content: center;
@@ -153,23 +168,14 @@ export default {
 }
 
 .register-card {
-  width: 500px; /* Adjust the width as needed */
+  width: 500px;
 }
 
 .register-card h2 {
   font-family: Arial, sans-serif;
   text-align: center;
 }
-
-.form-item-label-top .el-form-item__label {
-  margin-bottom: 10px; /* Adjust the spacing between the label and input */
-}
-
-.form-item-label-top .el-form-item__content {
-  margin-top: 0; /* Remove default margin */
-}
-
 .el-form-item__content {
-  font-size: 16px; /* Adjust the font size as needed */
+  font-size: 16px;
 }
 </style>
