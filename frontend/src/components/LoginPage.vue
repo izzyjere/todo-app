@@ -80,7 +80,7 @@ export default {
             })
               .then(() => this.$router.push("/todos"))
               .catch((error) => {
-                this.errorMessage = "Invalid login attempt.";
+                this.errorMessage = error.message ?? "Invalid login attempt.";
                 console.log(error);
               });
             this.loading = false;

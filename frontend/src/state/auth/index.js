@@ -47,6 +47,7 @@ const actions = {
 
     } catch (error) {
       console.error('Login failed:', error);
+      commit('SET_ERROR_MESSAGE', error.message);
       throw error;
     }
   },
