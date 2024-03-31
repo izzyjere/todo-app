@@ -2,8 +2,10 @@ package com.example.todoapp.controllers;
 
 import com.example.todoapp.dto.CreateUserRequest;
 import com.example.todoapp.dto.LoginRequest;
+import com.example.todoapp.dto.LoginResponse;
 import com.example.todoapp.dto.Result;
 import com.example.todoapp.dto.TokenResponse;
+import com.example.todoapp.dto.UserData;
 import com.example.todoapp.security.services.AuthenticationService;
 import com.example.todoapp.security.services.TokenService;
 import lombok.RequiredArgsConstructor;
@@ -34,15 +36,25 @@ public class AuthenticationController {
     }
 
     @PostMapping("/login")
-    public Result<TokenResponse> authenticate(@RequestBody LoginRequest request) {
+    public Result<LoginResponse> authenticate(@RequestBody LoginRequest request) {
         try {
             var authenticatedUser = authenticationService.authenticate(request);
-            Map<String,Object> customClaims = new HashMap<>();
-            customClaims.put("GivenName",authenticatedUser.getFirstName());
-            customClaims.put("Surname",authenticatedUser.getLastLame());
-            customClaims.put("Id",authenticatedUser.getId());
-            String jwtToken = tokenService.generateToken(customClaims,authenticatedUser);
-            return Result.Success(TokenResponse.builder().token(jwtToken).expiresIn(tokenService.getExpirationTime()).build(), "Login successful.");
+            Map<String, Object> customClaims = new HashMap<>();
+            customClaims.put("GivenName", authenticatedUser.getFirstName());
+            customClaims.put("Surname", authenticatedUser.getLastLame());
+            customClaims.put("Id", authenticatedUser.getId());
+            String jwtToken = tokenService.generateToken(customClaims, authenticatedUser);
+            var tokenData = TokenResponse.builder()
+                                         .token(jwtToken)
+                                         .expiresIn(tokenService.getExpirationTime()).build();
+
+            var userData = UserData.builder()
+                                   .fullName(authenticatedUser.toString())
+                                   .id(authenticatedUser.getId())
+                                   .username(authenticatedUser.getUsername()).build();
+            var response = LoginResponse.builder().tokenData(tokenData).userData(userData)
+                    .build();
+            return Result.Success(response, "Login successful.");
         } catch (Exception e) {
             log.error(e);
             return Result.Fail("Invalid credentials.");

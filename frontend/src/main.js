@@ -6,7 +6,7 @@ import 'element-plus/dist/index.css';
 import LoginPage from './components/LoginPage.vue';
 import RegisterPage from './components/RegisterPage.vue';
 import axios from 'axios';
-
+import store from './state/store';
 
 const routes = [
   { path: '/', redirect: '/login' },
@@ -21,5 +21,6 @@ const router = createRouter({
 axios.defaults.baseURL = 'http://localhost:8080/api/';
 const app = createApp(App);
 app.use(router);
+app.use(store);
 app.use(ElementPlus);
 app.mount('#app');

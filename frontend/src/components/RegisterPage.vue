@@ -41,7 +41,7 @@
           <el-button
             type="primary"
             @click="register"
-            :disabled="loading"
+            :loading="loading"
             size="large"
           >
             {{ loading ? "Submitting..." : "Register" }}
