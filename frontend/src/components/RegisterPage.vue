@@ -38,9 +38,14 @@
           ></el-input>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="register" size="large"
-            >Register</el-button
+          <el-button
+            type="primary"
+            @click="register"
+            :disabled="loading"
+            size="large"
           >
+            {{ loading ? "Submitting..." : "Register" }}
+          </el-button>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -61,6 +66,7 @@ export default {
   data() {
     return {
       errorMessage: "",
+      loading: false,
       registrationForm: {
         firstName: "",
         lastName: "",
@@ -113,6 +119,7 @@ export default {
       this.$refs.registrationForm.validate((valid) => {
         if (valid) {
           // Send registration data to backend
+          this.loading = true;
           axios
             .post("auth/signup", this.registrationForm)
             .then((response) => {
@@ -133,6 +140,9 @@ export default {
             .catch((error) => {
               console.error("An error occurred during registration:", error);
               this.errorMessage = "An error occurred. Please try again later.";
+            })
+            .finally(() => {
+              this.loading = false;
             });
         } else {
           console.log("Invalid Form");
