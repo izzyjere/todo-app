@@ -35,21 +35,11 @@ public class SecurityConfiguration {
                         "/swagger-ui/index.html",
         };
 
-        @Bean
-        CorsConfigurationSource corsConfigurationSource() {
-                CorsConfiguration configuration = new CorsConfiguration();
-                configuration.setAllowedOriginPatterns(Collections.singletonList("http://localhost:8085"));
-                configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-                configuration.setAllowCredentials(false);
-                UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-                source.registerCorsConfiguration("/**", configuration);
-                return source;
-        }
-
+       
         @Bean
         public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-                http            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                http            .cors(Customizer.withDefaults())
                                 .csrf(AbstractHttpConfigurer::disable)
                                 .authorizeHttpRequests((authorize) -> authorize
                                                 .requestMatchers(AUTH_WHITELIST).permitAll()

@@ -17,6 +17,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 @RequestMapping("/api/auth")
 @Log4j2
+@CrossOrigin("*")
 public class AuthenticationController {
 
     private final AuthenticationService authenticationService;
