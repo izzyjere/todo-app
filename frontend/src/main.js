@@ -12,14 +12,26 @@ import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 
 const routes = [
   { path: '/', redirect: '/login' },
-  { path: '/login', component: LoginPage }, 
-  { path: '/register', component: RegisterPage }, 
-  { path: '/todos', component: HomePage }, 
+  { path: '/login', component: LoginPage },
+  { path: '/register', component: RegisterPage },
+  {
+    path: '/todos', component: HomePage, meta: {
+      requiresAuth: true
+    }
+  },
 ];
 
 const router = createRouter({
   history: createWebHistory(),
   routes
+});
+router.beforeEach((to, from, next) => {
+  const isAuthenticated = store.state.auth.isAuthenticated;
+  if (to.meta.requiresAuth && !isAuthenticated) {
+    next('/login');
+  } else {
+    next();
+  }
 });
 axios.defaults.baseURL = 'http://localhost:8080/api/';
 const app = createApp(App);
