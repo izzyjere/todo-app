@@ -77,10 +77,16 @@
             <!-- Search Bar and Create Button -->
             <div class="search-bar-row">
               <el-input
-                placeholder="Search..."
-                style="margin-right: 20px; width: 350px"
-              ></el-input>
-
+                v-model="searchTerm"
+                style="width: 300px; margin-right: 30px"
+                @input="searchTodos"
+                clearable
+                placeholder="Search for todos here"
+              >
+                <template #prefix>
+                  <el-icon class="el-input__icon"><search /></el-icon>
+                </template>
+              </el-input>
               <el-button title="Create todo" type="primary" @click="createTodo">
                 <el-icon><EditPen /></el-icon>
               </el-button>
@@ -220,6 +226,7 @@ export default {
     return {
       dialogFormVisible: false,
       loading: false,
+      searchTerm: "",
       todoRequest: {
         id: 0,
         details: "",
@@ -250,7 +257,7 @@ export default {
       return {
         total: this.todos.length,
         completed: this.getComplete(),
-        pending: this.getPending()
+        pending: this.getPending(),
       };
     },
   },
@@ -260,22 +267,22 @@ export default {
       "saveTodo",
       "deleteTodo",
       "completeTodo",
-    ]), 
-    ...mapActions("auth", ["logout"]), 
+    ]),
+    ...mapActions("auth", ["logout"]),
     hideForm() {
       this.dialogFormVisible = false;
     },
-    getPending(){
-      if(this.todos.length){
+    getPending() {
+      if (this.todos.length) {
         return this.todos.filter((t) => !t.complete).length;
-      }else{
+      } else {
         return 0;
       }
     },
-    getComplete(){
-      if(this.todos.length){
+    getComplete() {
+      if (this.todos.length) {
         return this.todos.filter((t) => t.complete).length;
-      }else{
+      } else {
         return 0;
       }
     },
@@ -286,9 +293,12 @@ export default {
         description: "",
       };
     },
-    signOut(){
+    signOut() {
       this.logout();
       this.$router.push("/");
+    },
+    searchTodos() {
+      this.fetchTodos(this.searchTerm);
     },
     createTodo() {
       this.dialogFormVisible = true;

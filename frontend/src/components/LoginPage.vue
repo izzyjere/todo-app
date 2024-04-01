@@ -15,7 +15,7 @@
           <el-input v-model="loginForm.username"></el-input>
         </el-form-item>
         <el-form-item label="Password" prop="password">
-          <el-input type="password" v-model="loginForm.password"></el-input>
+          <el-input type="password" show-password v-model="loginForm.password"></el-input>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="handleLogin" :loading="loading"

@@ -38,21 +38,23 @@ public class TodoItemServiceImpl implements TodoItemService {
                 .owner(todoItem.getOwner().toString())
                 .complete(todoItem.getStatus().equals(TodoStatus.COMPLETED))
                 .build();
-        if(todoItem.getCompletedDate() != null){
-           dto.setCompletedDate(formatter.format(todoItem.getCompletedDate().toInstant()));
+        if (todoItem.getCompletedDate() != null) {
+            dto.setCompletedDate(formatter.format(todoItem.getCompletedDate().toInstant()));
         }
         return dto;
     }
 
     @Override
     public void delete(int id) {
-        var todoItem = todoItemRepository.findById(id).orElseThrow(() -> new RecordNotFoundException("Todo item with id {" + id + "} was not found."));
+        var todoItem = todoItemRepository.findById(id)
+                .orElseThrow(() -> new RecordNotFoundException("Todo item with id {" + id + "} was not found."));
         todoItemRepository.delete(todoItem);
     }
 
     @Override
     public Todo complete(int id) {
-        var todoItem = todoItemRepository.findById(id).orElseThrow(() -> new RecordNotFoundException("Todo item with id {" + id + "} was not found."));
+        var todoItem = todoItemRepository.findById(id)
+                .orElseThrow(() -> new RecordNotFoundException("Todo item with id {" + id + "} was not found."));
         todoItem.markComplete();
         return map(todoItemRepository.save(todoItem));
     }
@@ -60,6 +62,13 @@ public class TodoItemServiceImpl implements TodoItemService {
     @Override
     public List<Todo> getAll(int userId) {
         return todoItemRepository.findAllByOwner_Id(userId).stream().map(this::map).toList();
+    }
+    @Override
+    public List<Todo> searchAll(int userId, String searchQuery) {
+        return todoItemRepository
+                .findByOwner_IdAndDetailsContainingIgnoreCaseOrOwner_IdAndDescriptionContainingIgnoreCase(userId,
+                        searchQuery, userId, searchQuery)
+                .stream().map(this::map).toList();
     }
 
     @Override
@@ -76,8 +85,9 @@ public class TodoItemServiceImpl implements TodoItemService {
 
                 todoItem = new TodoItem(request.getDetails(), request.getDescription(), owner.get());
             } else {
-                //Editing
-                todoItem = todoItemRepository.findById(request.getId()).orElseThrow(() -> new RecordNotFoundException("Todo item with id {" + request.getId() + "} was not found."));
+                // Editing
+                todoItem = todoItemRepository.findById(request.getId()).orElseThrow(() -> new RecordNotFoundException(
+                        "Todo item with id {" + request.getId() + "} was not found."));
                 todoItem.setDescription(request.getDescription());
                 todoItem.setDetails(request.getDetails());
             }

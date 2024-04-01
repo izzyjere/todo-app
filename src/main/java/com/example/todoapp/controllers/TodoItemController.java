@@ -22,20 +22,28 @@ public class TodoItemController {
         todoItemService.delete(id);
         return ResponseEntity.noContent().build();
     }
+
     @PutMapping("/{id}/complete")
     public ResponseEntity<Todo> completeTodo(@PathVariable int id) {
         Todo completedTodo = todoItemService.complete(id);
         return ResponseEntity.ok(completedTodo);
     }
+
     @GetMapping("/{userId}")
-    public ResponseEntity<List<Todo>> getAllTodosForUser(@PathVariable int userId) {
-        List<Todo> todos = todoItemService.getAll(userId);
+    public ResponseEntity<List<Todo>> getAllTodosForUser(@PathVariable int userId, @RequestParam String search) {
+        List<Todo> todos;
+        if (search != null && !search.isEmpty()) {
+            todos = todoItemService.searchAll(userId, search);
+        } else {
+            todos = todoItemService.getAll(userId);
+        }
         return ResponseEntity.ok(todos);
     }
+
     @PostMapping
     public ResponseEntity<Todo> saveTodo(@RequestBody TodoRequest request) {
         Todo savedTodo = todoItemService.save(request);
-        if(savedTodo==null){
+        if (savedTodo == null) {
             return ResponseEntity.internalServerError().build();
         }
         return new ResponseEntity<>(savedTodo, HttpStatus.CREATED);

@@ -11,5 +11,6 @@ public interface TodoItemService {
    void delete(int id);
    Todo complete(int id);
    List<Todo> getAll(int userId);
+   List<Todo> searchAll(int userId, String searchQuery);
    Todo save(TodoRequest request);
 }

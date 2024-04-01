@@ -9,11 +9,12 @@ const mutations = {
 };
 
 const actions = {
-  async fetchTodos({ commit, rootState }) {
+  async fetchTodos({ commit, rootState },searchQuery = "") {
     try {
       const userId = rootState.auth.user.id; 
-      const response = await this.$axios.get(`/api/todo/${userId}`);
-      commit('SET_TODOS', response.data);      
+      let endpoint = `/api/todo/${userId}?search=${searchQuery}`;      
+      const response = await this.$axios.get(endpoint);
+      commit('SET_TODOS', response.data ?? []);      
     } catch (error) {
       console.error('Error fetching todos:', error);
     }

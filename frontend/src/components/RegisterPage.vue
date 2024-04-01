@@ -26,6 +26,7 @@
         <el-form-item label="Password" prop="password">
           <el-input
             type="password"
+            show-password
             v-model="registrationForm.password"
             size="large"
           ></el-input>
@@ -33,6 +34,7 @@
         <el-form-item label="Confirm" prop="confirmPassword">
           <el-input
             type="password"
+            show-password
             v-model="registrationForm.confirmPassword"
             size="large"
           ></el-input>
