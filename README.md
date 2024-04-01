@@ -7,6 +7,7 @@
 * Springboot Back-end
 * Vue JS Front-end
 # FEATURES INCLUDED
+* Realtime search
 * Spring Security 6 with JWT Authentication
 * Unit tests using JUnit + Mockito
 * State management using Vuex
